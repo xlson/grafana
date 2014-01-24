@@ -83,6 +83,10 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
     // Set and populate defaults
     var _d = {
       /** @scratch /panels/histogram/3
+       * renderer:: sets client side (flot) or native graphite png renderer (png)
+       */
+      renderer: 'flot',
+      /** @scratch /panels/histogram/3
        * x-axis:: Show the x-axis
        */
       'x-axis'      : true,
@@ -255,10 +259,6 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
       }
     };
 
-    $scope.typeAheadSource = function () {
-      return ["test", "asd", "testing2"];
-    };
-
     $scope.remove_panel_from_row = function(row, panel) {
       if ($scope.fullscreen) {
         $rootScope.$emit('panel-fullscreen-exit');
@@ -322,6 +322,7 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
       var graphiteQuery = {
         range: filterSrv.timeRange(false),
         targets: $scope.panel.targets,
+        renderer: $scope.panel.renderer,
         maxDataPoints: $scope.panel.span * 50
       };
 
@@ -334,6 +335,10 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
 
     $scope.receiveGraphiteData = function(results) {
       $scope.panelMeta.loading = false;
+      if (_.isString(results)) {
+        $scope.render(results);
+        return;
+      }
 
       results = results.data;
       $scope.legend = [];
@@ -534,6 +539,11 @@ function (angular, app, $, _, kbn, moment, timeSeries) {
           try {
             elem.css({ height: scope.height || scope.panel.height || scope.row.height });
           } catch(e) { return; }
+
+          if (_.isString(data)) {
+            elem.html('<img src="' + data + '"></img>');
+            return;
+          }
 
           _.each(data, function(series) {
             series.label = series.info.alias;
