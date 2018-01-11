@@ -63,7 +63,7 @@ func (tw *DatasourcePluginWrapper) Query(ctx context.Context, ds *models.DataSou
 			Series: []*tsdb.TimeSeries{},
 		}
 
-		for _, s := range r.Series {
+		for _, s := range r.GetSeries() {
 			points := tsdb.TimeSeriesPoints{}
 
 			for _, p := range s.Points {
@@ -76,6 +76,16 @@ func (tw *DatasourcePluginWrapper) Query(ctx context.Context, ds *models.DataSou
 				Tags:   s.Tags,
 				Points: points,
 			})
+		}
+		table := tsdb.Table{}
+		for _, t := range r.GetTables() {
+			rows := tsdb.RowValues{}
+			for _, r := range t.GetRows() {
+				values := []interface{}{}
+				for _, v := r.GetValues() {
+
+				}
+			}
 		}
 	}
 
