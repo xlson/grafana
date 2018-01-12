@@ -50,24 +50,22 @@ message TableRow {
 
 message RowValue {
   enum Kind {
-    // Field type unknown.
-    TYPE_UNKNOWN        = 0;
     // Field type null.
-    TYPE_NULL           = 1;
-    // Field type float.
-    TYPE_FLOAT          = 2;
+    TYPE_NULL           = 0;
+    // Field type double.
+    TYPE_DOUBLE          = 1;
     // Field type int64.
-    TYPE_INT64          = 3;
+    TYPE_INT64          = 2;
     // Field type bool.
-    TYPE_BOOL           = 4;
+    TYPE_BOOL           = 3;
     // Field type string.
-    TYPE_STRING         = 5;
+    TYPE_STRING         = 4;
     // Field type bytes.
-    TYPE_BYTES          = 6;
+    TYPE_BYTES          = 5;
   };
 
   Kind kind = 1;
-  float floatValue = 2;
+  double doubleValue = 2;
   int64 int64Value = 3;
   bool boolValue = 4;
   string stringValue = 5;
