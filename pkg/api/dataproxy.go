@@ -15,21 +15,39 @@ import (
 const HeaderNameNoBackendCache = "X-Grafana-NoCache"
 
 func (hs *HTTPServer) getDatasourceFromCache(id int64, c *m.ReqContext) (*m.DataSource, error) {
-	userPermissionsQuery := m.GetDataSourcePermissionsForUserQuery{
-		User: c.SignedInUser,
-	}
-	if err := bus.Dispatch(&userPermissionsQuery); err != nil {
-		if err != bus.ErrHandlerNotFound {
-			return nil, err
-		}
-	} else {
-		permissionType, exists := userPermissionsQuery.Result[id]
-		if exists && permissionType != m.DsPermissionQuery {
-			return nil, errors.New("User not allowed to access datasource")
+	nocache := c.Req.Header.Get(HeaderNameNoBackendCache) == "true"
+
+	permissionFoundInCache := false
+	dsUserPermissionsCacheKey := fmt.Sprintf("ds-perm-by-userId-%d", c.UserId)
+	if !nocache {
+		if cached, found := hs.cache.Get(dsUserPermissionsCacheKey); found {
+			permissions := cached.(map[int64]m.DsPermissionType)
+			permissionType, exists := permissions[id]
+			if exists && permissionType != m.DsPermissionQuery {
+				return nil, errors.New("User not allowed to access datasource")
+			}
+
+			permissionFoundInCache = true
 		}
 	}
 
-	nocache := c.Req.Header.Get(HeaderNameNoBackendCache) == "true"
+	if !permissionFoundInCache {
+		userPermissionsQuery := m.GetDataSourcePermissionsForUserQuery{
+			User: c.SignedInUser,
+		}
+		if err := bus.Dispatch(&userPermissionsQuery); err != nil {
+			if err != bus.ErrHandlerNotFound {
+				return nil, err
+			}
+		} else {
+			hs.cache.Add(dsUserPermissionsCacheKey, userPermissionsQuery.Result, time.Second*5)
+			permissionType, exists := userPermissionsQuery.Result[id]
+			if exists && permissionType != m.DsPermissionQuery {
+				return nil, errors.New("User not allowed to access datasource")
+			}
+		}
+	}
+
 	cacheKey := fmt.Sprintf("ds-%d", id)
 
 	if !nocache {
