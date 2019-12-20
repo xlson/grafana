@@ -79,6 +79,7 @@ func (hs *HTTPServer) setIndexViewData(c *m.ReqContext) (*dtos.IndexViewData, er
 		AppSubUrl:               appSubURL,
 		GoogleAnalyticsId:       setting.GoogleAnalyticsId,
 		GoogleTagManagerId:      setting.GoogleTagManagerId,
+		Footer:                  getFooter(),
 		BuildVersion:            setting.BuildVersion,
 		BuildCommit:             setting.BuildCommit,
 		NewGrafanaVersion:       plugins.GrafanaLatestVersion,
@@ -365,6 +366,18 @@ func (hs *HTTPServer) setIndexViewData(c *m.ReqContext) (*dtos.IndexViewData, er
 		return data.NavTree[i].SortWeight < data.NavTree[j].SortWeight
 	})
 	return &data, nil
+}
+
+func getFooter() m.FooterConfig {
+	query := m.CustomFooterQuery{}
+	if err := bus.Dispatch(&query); err != nil {
+		return m.FooterConfig{
+			Docs:      m.FooterConfigItem{true, "Docs", "http://docs.grafana.org"},
+			Support:   m.FooterConfigItem{true, "Support Plans", "https://grafana.com/services/support"},
+			Community: m.FooterConfigItem{true, "Community", "https://community.grafana.com/"},
+		}
+	}
+	return query.Result
 }
 
 func (hs *HTTPServer) Index(c *m.ReqContext) {

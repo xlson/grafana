@@ -1,5 +1,7 @@
 package dtos
 
+import "github.com/grafana/grafana/pkg/models"
+
 type IndexViewData struct {
 	User                    *CurrentUser
 	Settings                map[string]interface{}
@@ -11,6 +13,7 @@ type IndexViewData struct {
 	BuildVersion            string
 	BuildCommit             string
 	Theme                   string
+	Footer                  models.FooterConfig
 	NewGrafanaVersionExists bool
 	NewGrafanaVersion       string
 	AppName                 string
