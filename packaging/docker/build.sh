@@ -4,6 +4,7 @@ set -e
 BUILD_FAST=0
 UBUNTU_BASE=0
 TAG_SUFFIX=""
+ENTERPRISE=0
 
 while [ "$1" != "" ]; do
   case "$1" in

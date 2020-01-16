@@ -448,7 +448,7 @@ jobs:
           name: ci job started
           command: './scripts/ci-job-started.sh'
       - run:
-          name: install docker 
+          name: install docker
           command: |
             apt-get update
             apt-get install -y docker.io
@@ -678,9 +678,9 @@ jobs:
       - run: docker run --privileged linuxkit/binfmt:v0.6
       - run: cp dist/grafana-latest.linux-*.tar.gz packaging/docker
       - run: cd packaging/docker && ./build-deploy.sh "${CIRCLE_TAG}"
-      - run: rm packaging/docker/grafana-latest.linux-*.tar.gz
-      - run: cp enterprise-dist/grafana-enterprise-*.linux-amd64-musl.tar.gz packaging/docker/grafana-latest.linux-x64-musl.tar.gz
-      - run: cd packaging/docker && ./build-enterprise.sh "${CIRCLE_TAG}"
+      - run: rm packaging/docker/*.tar.gz
+      - run: cp enterprise-dist/grafana-latest.linux-*.tar.gz packaging/docker
+      - run: cd packaging/docker && ./build-deploy.sh --enterprise "${CIRCLE_TAG}"
       - run:
           name: ci job failed
           command: './scripts/ci-job-failed.sh'
@@ -704,9 +704,9 @@ jobs:
       - run: docker run --privileged linuxkit/binfmt:v0.6
       - run: cp dist/grafana-latest.linux-*.tar.gz packaging/docker
       - run: cd packaging/docker && ./build-deploy.sh --ubuntu "${CIRCLE_TAG}"
-      - run: rm packaging/docker/grafana-latest.linux-*.tar.gz
-      - run: cp enterprise-dist/grafana-enterprise-*.linux-amd64.tar.gz packaging/docker/grafana-latest.linux-x64.tar.gz
-      - run: cd packaging/docker && ./build-enterprise.sh --ubuntu "${CIRCLE_TAG}"
+      - run: rm packaging/docker/*.tar.gz
+      - run: cp enterprise-dist/grafana-latest.linux-*.tar.gz packaging/docker
+      - run: cd packaging/docker && ./build-deploy.sh --ubuntu --enterprise "${CIRCLE_TAG}"
       - run:
           name: ci job failed
           command: './scripts/ci-job-failed.sh'
